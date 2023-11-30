@@ -1,6 +1,7 @@
+import java.io.IOException;
+
 public class Main {
-    public static void main(String[] args) {
-        //KnapsackAlgorithm algorithm = new Greedy();
-        //KnapsackAlgorithm algorithm = new NeighbourhoodSearch();
+    public static void main(String[] args) throws IOException {
+        new KnapsackAlgorithm();
     }
 }

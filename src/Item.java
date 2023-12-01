@@ -1,17 +1,17 @@
 public class Item {
-    private int value;
-    private int weight;
+    private double weight;
+    private double compareVal;
 
-    public Item(int value, int weight) {
-        this.value = value;
+    public Item(double value, double weight) {
         this.weight = weight;
+        compareVal = value/weight;
     }
 
-    public int getValue() {
-        return value;
-    }
-
-    public int getWeight() {
+    public double getWeight() {
         return weight;
+    }
+
+    public double getCompareVal() {
+        return compareVal;
     }
 }

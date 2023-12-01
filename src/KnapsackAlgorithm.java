@@ -4,21 +4,20 @@ import java.util.*;
 
 public class KnapsackAlgorithm {
     private ArrayList<Item> itemArrayList;
+    private ArrayList<Knapsack> knapsacks = new ArrayList<>();
     public KnapsackAlgorithm() throws IOException {
-        String filePath = "src/InputFiles/input2";
+        String filePath = "src/InputFiles/input4Multiple";
         //String filePath = "C:/Users/elisa/OneDrive/Dokument/GitHub/lab2_knapsack/src/InputFiles/input2";
         //String filePath = "C:/Users/elisa/OneDrive/Dokument/GitHub/lab2_knapsack/src/InputFiles/input3";
 
         BufferedReader reader = new BufferedReader((new FileReader(filePath)));
-        int maxWeight = Integer.parseInt(reader.readLine());
+        int amountOfBags = Integer.parseInt(reader.readLine());
+
+        for (int i = 0; i < amountOfBags; i++) {
+            knapsacks.add(new Knapsack(Double.parseDouble(reader.readLine())));
+        }
+
         int n = Integer.parseInt(reader.readLine());
-
-        greedyApproach(maxWeight, n, reader);
-
-    }
-
-    public void greedyApproach(int maxWeight, int n, BufferedReader reader) throws IOException {
-        double currentWeight = 0;
 
         itemArrayList = new ArrayList<>();
         for(int i = 0; i < n ; i++){
@@ -29,17 +28,37 @@ public class KnapsackAlgorithm {
 
             itemArrayList.add(item);
         }
-        Collections.sort(itemArrayList, Comparator.comparingDouble(itemVal -> -itemVal.getCompareVal()));
-        for(int i = 0; i < itemArrayList.size(); i++){
-            double weight = itemArrayList.get(i).getWeight();
-            if((currentWeight + weight) <= maxWeight){
-                System.out.println("Added weight to bag: " + weight);
-                currentWeight += weight;
+
+        greedyApproach();
+
+    }
+
+    public void greedyApproach() {
+        itemArrayList.sort(Comparator.comparingDouble(itemVal -> -itemVal.getCompareVal()));
+
+        for (Item item : itemArrayList) {
+
+            double weight = item.getWeight();
+
+            for (Knapsack bag : knapsacks) {
+                if (bag.getWeightLeft() >= weight) {
+                    bag.addToList(item);
+                    break;
+                }
             }
         }
 
-        System.out.println("Final weight: " + currentWeight);
-        System.out.println("Of maximums weight: " + maxWeight);
+        /*for (Knapsack bag : knapsacks) {
+            System.out.println("Weight left: " + bag.getWeightLeft());
+            System.out.println("Total value: " + bag.getTotalValue());
+            System.out.println("Max weight: " + bag.getMaxWeight());
+            System.out.println("Items in bag: ");
+            ArrayList<Item> itemsinbag = bag.getItemList();
+            for (Item item : itemsinbag) {
+                System.out.println(item.toString());
+            }
+
+        }*/
 
         // Sortera listan beroende på högst värde (högst till lägst) value/weight, ha reference till Item genom hashmap
         // Gå från vänster till höger och se om du kan lägga in den i knapsack (maxcapasity check)

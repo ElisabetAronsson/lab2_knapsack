@@ -18,6 +18,17 @@ public class Knapsack {
         weightLeft -= item.getWeight();
     }
 
+    public Item removeFromList(int itemInt){
+
+        Item item = itemList.get(itemInt);
+
+        itemList.remove(item);
+        value -= item.getValue();
+        weightLeft += item.getWeight();
+
+        return item;
+    }
+
     public double getTotalValue(){
         return value;
     }
@@ -32,9 +43,5 @@ public class Knapsack {
 
     public ArrayList<Item> getItemList() {
         return itemList;
-    }
-
-    public double getValue() {
-        return value;
     }
 }

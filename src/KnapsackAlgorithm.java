@@ -6,9 +6,7 @@ public class KnapsackAlgorithm {
     private ArrayList<Knapsack> bestKnapsacks = new ArrayList<>();
     private ArrayList<Item> itemsNotInKnapsack = new ArrayList<>();
     public KnapsackAlgorithm() throws IOException {
-        String filePath = "src/InputFiles/input6Multiple";
-        //String filePath = "C:/Users/elisa/OneDrive/Dokument/GitHub/lab2_knapsack/src/InputFiles/input2";
-        //String filePath = "C:/Users/elisa/OneDrive/Dokument/GitHub/lab2_knapsack/src/InputFiles/input3";
+        String filePath = "src/InputFiles/input2Multiple4";
 
         BufferedReader reader = new BufferedReader((new FileReader(filePath)));
         int amountOfBags = Integer.parseInt(reader.readLine());

@@ -1,13 +1,12 @@
 import java.io.*;
-import java.nio.Buffer;
 import java.util.*;
 
 public class KnapsackAlgorithm {
     private ArrayList<Item> itemArrayList;
-    private ArrayList<Knapsack> knapsacks = new ArrayList<>();
+    private ArrayList<Knapsack> bestKnapsacks = new ArrayList<>();
     private ArrayList<Item> itemsNotInKnapsack = new ArrayList<>();
     public KnapsackAlgorithm() throws IOException {
-        String filePath = "src/InputFiles/input4Multiple";
+        String filePath = "src/InputFiles/input5Multiple";
         //String filePath = "C:/Users/elisa/OneDrive/Dokument/GitHub/lab2_knapsack/src/InputFiles/input2";
         //String filePath = "C:/Users/elisa/OneDrive/Dokument/GitHub/lab2_knapsack/src/InputFiles/input3";
 
@@ -15,7 +14,7 @@ public class KnapsackAlgorithm {
         int amountOfBags = Integer.parseInt(reader.readLine());
 
         for (int i = 0; i < amountOfBags; i++) {
-            knapsacks.add(new Knapsack(Double.parseDouble(reader.readLine())));
+            bestKnapsacks.add(new Knapsack(Double.parseDouble(reader.readLine())));
         }
 
         int n = Integer.parseInt(reader.readLine());
@@ -34,7 +33,7 @@ public class KnapsackAlgorithm {
 
         int totalValueBefore = 0;
         System.out.println("BEFORE: ");
-        for (Knapsack bag : knapsacks) {
+        for (Knapsack bag : bestKnapsacks) {
             totalValueBefore += bag.getTotalValue();
             System.out.println("Weight left: " + bag.getWeightLeft());
             System.out.println("Total value: " + bag.getTotalValue());
@@ -53,13 +52,14 @@ public class KnapsackAlgorithm {
         System.out.println("Total value all bags: " + totalValueBefore);
 
 
-        neighboursearchApproach();
+        //neighboursearchApproach();
+        localSearch();
 
         System.out.println();
 
         int totalValueAfter = 0;
         System.out.println("AFTER: ");
-        for (Knapsack bag : knapsacks) {
+        for (Knapsack bag : bestKnapsacks) {
             totalValueAfter += bag.getTotalValue();
             System.out.println("Weight left: " + bag.getWeightLeft());
             System.out.println("Total value: " + bag.getTotalValue());
@@ -86,7 +86,7 @@ public class KnapsackAlgorithm {
 
             double weight = item.getWeight();
 
-            for (Knapsack bag : knapsacks) {
+            for (Knapsack bag : bestKnapsacks) {
                 if (bag.getWeightLeft() >= weight) {
                     bag.addToList(item);
                     itemsNotInKnapsack.remove(item);
@@ -110,31 +110,31 @@ public class KnapsackAlgorithm {
 
         while (continueLoop){
             int totalValue = 0;
-            ArrayList<Knapsack> tempKnapsacks = knapsacks;
+            ArrayList<Knapsack> modifyKnapsacks = new ArrayList<>(bestKnapsacks);
             continueLoop = false;
 
-            for (Knapsack knapsack : tempKnapsacks) {
+            for (Knapsack knapsack : modifyKnapsacks) {
                 totalValue += knapsack.getTotalValue();
             }
 
-            for (int i = 0; i < tempKnapsacks.size(); i++) {
-                int size = tempKnapsacks.size();
+            for (int i = 0; i < modifyKnapsacks.size(); i++) {
+                int size = modifyKnapsacks.size();
 
-                Knapsack currentKnapsack = tempKnapsacks.get(i);
+                Knapsack currentKnapsack = modifyKnapsacks.get(i);
 
-                innerLoop:
+                //innerLoop:
                 for (int m = 0; m < currentKnapsack.getItemList().size(); m++) {
                     Item item = currentKnapsack.removeFromList(m);
 
-                    Knapsack nextKnapsack = tempKnapsacks.get((i+1)%size);
+                    Knapsack nextKnapsack = modifyKnapsacks.get((i+1)%size);
 
                     Item itemToRemove = null;
 
                     if (nextKnapsack.getMaxWeight() >= item.getWeight()){
                         if (nextKnapsack.getWeightLeft() >= item.getWeight()){
                             nextKnapsack.addToList(item);
-                            itemsNotInKnapsack.remove(item);
-                            continue innerLoop;
+                            itemsNotInKnapsack.remove(item); // ?
+                            //continue innerLoop;
                         }
                         else if (nextKnapsack.getWeightLeft() < item.getWeight()){
                             for (int j = 0; j < nextKnapsack.getItemList().size(); j++) {
@@ -176,13 +176,13 @@ public class KnapsackAlgorithm {
 
                     int newTotalValue = 0;
 
-                    for (Knapsack knapsack : tempKnapsacks) {
+                    for (Knapsack knapsack : modifyKnapsacks) {
                         newTotalValue += knapsack.getTotalValue();
                     }
 
                     if (newTotalValue > totalValue){
                         totalValue = newTotalValue;
-                        knapsacks = tempKnapsacks;
+                        bestKnapsacks = new ArrayList<>(modifyKnapsacks);
                         continueLoop = true;
                     }
                 }
@@ -212,12 +212,102 @@ public class KnapsackAlgorithm {
          */
     }
 
+
+    public void localSearch() {
+        boolean continueLoop = true;
+
+
+        while (continueLoop) {
+            int totalValue = 0;
+            continueLoop = false;
+
+            for (Knapsack knapsack : bestKnapsacks) {
+                totalValue += knapsack.getTotalValue();
+            }
+
+            for (int i = 0; i < bestKnapsacks.size(); i++) {
+                ArrayList<Knapsack> originalKnapsacks =  new ArrayList<>(bestKnapsacks);
+                //tempKnapsacks = new ArrayList<>(originalKnapsacks);
+                int size = originalKnapsacks.size();
+                Knapsack currentKnapsack = originalKnapsacks.get(i);
+
+                for (int j = 0; j < currentKnapsack.getItemList().size(); j++) {
+                    ArrayList<Knapsack> modifiedKnapsacks = new ArrayList<>(originalKnapsacks);
+                    Knapsack modifyKnapsack = new Knapsack(currentKnapsack);
+
+
+                    Item item = modifyKnapsack.removeFromList(j);
+                    Knapsack nextKnapsack = modifiedKnapsacks.get((i +1)%size);
+
+                    Item itemToRemove = moveItemLogic(nextKnapsack, item);
+
+
+                    Item bestItem = null;
+
+                    for (Item itemNotInKnapsack : itemsNotInKnapsack) {
+                        if (itemNotInKnapsack != itemToRemove){
+                            if (itemNotInKnapsack.getWeight() <= modifyKnapsack.getWeightLeft()){
+                                if (bestItem == null){
+                                    bestItem = itemNotInKnapsack;
+                                }else {
+                                    if (itemNotInKnapsack.getCompareVal() > bestItem.getCompareVal()){
+                                        bestItem = itemNotInKnapsack;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (bestItem != null){
+                        modifyKnapsack.addToList(bestItem);
+                        itemsNotInKnapsack.remove(bestItem);
+                    }
+
+                    int newTotalValue = 0;
+
+                    for (Knapsack knapsack : modifiedKnapsacks) {
+                        newTotalValue += knapsack.getTotalValue();
+                    }
+
+                    if (newTotalValue > totalValue){
+                        totalValue = newTotalValue;
+
+                        bestKnapsacks = new ArrayList<>(modifiedKnapsacks);
+                        continueLoop = true;
+                    }
+                }
+            }
+        }
+    }
+
+    private Item moveItemLogic(Knapsack nextKnapsack, Item item) {
+        Item itemToRemove = null;
+
+        if (nextKnapsack.getMaxWeight() >= item.getWeight()){
+            if (nextKnapsack.getWeightLeft() >= item.getWeight()){
+                nextKnapsack.addToList(item);
+                itemsNotInKnapsack.remove(item); // ?
+                //continue innerLoop;
+            } else {
+                for (int j = 0; j < nextKnapsack.getItemList().size(); j++) {
+                    if (nextKnapsack.getItemList().get(j).getWeight() >= item.getWeight() - nextKnapsack.getWeightLeft()){ // Mellanskillnad
+                        itemToRemove = nextKnapsack.removeFromList(j);
+                        itemsNotInKnapsack.add(itemToRemove);
+                        nextKnapsack.addToList(item);
+                        return itemToRemove;
+                    }
+                }
+            }
+        }else {
+            itemsNotInKnapsack.add(item);
+        }
+        return itemToRemove;
+    }
+
     private int chooseRandomItem(int size) {
         Random random = new Random();
         return random.nextInt(size);
     }
 
-    public void neighboursearchTaboApproach(){
 
-    }
 }

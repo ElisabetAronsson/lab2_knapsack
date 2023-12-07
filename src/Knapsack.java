@@ -12,6 +12,13 @@ public class Knapsack {
         weightLeft = maxWeight;
     }
 
+    public Knapsack(Knapsack other){
+        this.maxWeight = other.maxWeight;
+        this.weightLeft = other.weightLeft;
+        this.itemList = other.itemList;
+        this.value = other.value;
+    }
+
     public void addToList(Item item){
         itemList.add(item);
         value += item.getValue();

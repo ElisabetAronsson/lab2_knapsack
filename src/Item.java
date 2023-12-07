@@ -1,7 +1,7 @@
 public class Item {
-    private double value;
-    private double weight;
-    private double compareVal;
+    private final double value;
+    private final double weight;
+    private final double compareVal;
 
     public Item(double value, double weight) {
         this.value = value;

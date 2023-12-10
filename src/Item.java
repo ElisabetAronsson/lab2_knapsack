@@ -9,6 +9,12 @@ public class Item {
         compareVal = value/weight;
     }
 
+    public Item(Item item) {
+        this.value = item.value;
+        this.weight = item.weight;
+        this.compareVal = item.compareVal;
+    }
+
     public double getWeight() {
         return weight;
     }
